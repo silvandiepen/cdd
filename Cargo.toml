@@ -1,0 +1,21 @@
+[package]
+name = "cdd"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.74"
+description = "An interactive alternative to cd that filters directories inline while you type."
+license = "MIT"
+repository = "https://github.com/silvandiepen/cdd"
+readme = "README.md"
+keywords = ["cd", "shell", "zsh", "navigation", "cli"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+crossterm = "0.28"
+unicode-segmentation = "1"
+unicode-width = "0.2"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
