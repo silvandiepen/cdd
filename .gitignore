@@ -1,1 +1,6 @@
 /target
+
+# Website
+web/node_modules
+web/dist
+web/*.tsbuildinfo

@@ -178,8 +178,17 @@ See [`docs/SPEC.md`](docs/SPEC.md) for the canonical behaviour and implementatio
 
 ## Website
 
-The initial landing-page direction is documented in:
+The site lives in [`web/`](web/) — Vue 3 and Vite, built from the direction documented in:
 
 - [`docs/WEBSITE.md`](docs/WEBSITE.md)
 - [`docs/website-copy.md`](docs/website-copy.md)
 - [`docs/assets/website-hero-concept.svg`](docs/assets/website-hero-concept.svg)
+
+```sh
+cd web
+npm install
+npm run dev
+```
+
+See [`web/Readme.md`](web/Readme.md) for how it is put together and where it differs from the
+copy document.

@@ -1,0 +1,15 @@
+// cdd's palette, expressed as @sil/ui's project colours.
+//
+// One accent hue only — a muted blue. The page reads as warm off-white with
+// near-black text; everything else is derived from these through @sil/ui's
+// generated light/dark ramps, so dark mode falls out of the token system.
+@use "@sil/ui/defaults" with (
+  $project-colors: (
+    "light": #f6f4ef,
+    "dark": #10161f,
+    "primary": #3a6ea5,
+    "secondary": #5eb1ff,
+    "border": #e4e1da
+  )
+);
+@use "@sil/ui/styles/main";
