@@ -160,3 +160,11 @@ Version 1 is intentionally small.
 It is a better way to change directories. It is not a file manager, command launcher, shell replacement or general-purpose fuzzy finder.
 
 See [`docs/SPEC.md`](docs/SPEC.md) for the canonical behaviour and implementation requirements.
+
+## Website
+
+The initial landing-page direction is documented in:
+
+- [`docs/WEBSITE.md`](docs/WEBSITE.md)
+- [`docs/website-copy.md`](docs/website-copy.md)
+- [`docs/assets/website-hero-concept.svg`](docs/assets/website-hero-concept.svg)
