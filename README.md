@@ -120,21 +120,36 @@ macOS with Zsh is the first supported environment. Linux support should follow w
 
 ## Installation
 
+`cdd` needs Zsh 5.8 or newer, which is what macOS ships.
+
+Build it from source:
+
+```sh
+cargo build --release
+```
+
+Then enable the shell integration:
+
+```sh
+eval "$(/path/to/cdd init zsh)"
+```
+
+Add that line to `~/.zshrc` to enable `cdd` in future sessions.
+
 The intended installation is Homebrew:
 
 ```sh
 brew install silvandiepen/tap/cdd
 ```
 
-Then enable the shell integration:
+The Homebrew formula and release process will be added when the first release is tagged.
 
-```sh
-eval "$(cdd init zsh)"
-```
+### Environment
 
-Add that line to `~/.zshrc` to enable `cdd` in future sessions.
-
-The exact Homebrew formula and release process will be added when the first binary is ready.
+| Variable | Effect |
+| --- | --- |
+| `CDD_MAX_ROWS` | Maximum visible results (default `8`) |
+| `CDD_NO_SERVER` | Set to any value to run one process per keystroke instead of keeping a cached helper |
 
 ## Design principles
 
