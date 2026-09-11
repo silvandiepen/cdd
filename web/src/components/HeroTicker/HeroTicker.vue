@@ -1,6 +1,6 @@
 <template>
   <div :class="bemm()">
-    <p :class="bemm('static')">Change Directory</p>
+    <span :class="bemm('static')">Change Directory</span>
 
     <ul :class="bemm('list')" aria-label="What the last d stands for">
       <li
@@ -37,10 +37,15 @@ const { index, select } = useTicker(props.words, {
 <style lang="scss">
 .hero-ticker {
   display: flex;
-  align-items: center;
+  // Top-aligned, not centred: the word list is taller than the static line, and
+  // centring it pushed `Change Directory` far below the wordmark it belongs to.
+  align-items: flex-start;
   gap: var(--space-l);
 
   &__static {
+    // Not a paragraph: @sil/ui's global lead-in rule, `p:first-child`, is more
+    // specific than this class and silently halved the headline to 1.1em.
+    display: block;
     font-size: var(--font-size-xxl);
     font-weight: var(--font-weight-normal);
     letter-spacing: -0.02em;

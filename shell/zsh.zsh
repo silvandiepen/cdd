@@ -166,6 +166,42 @@ _cdd_unhighlight() {
   region_highlight=( "${(@)region_highlight:#*memo=$_CDD_MEMO*}" )
 }
 
+# Take the highlighting of POSTDISPLAY away from whoever owned it before us.
+#
+# zsh-autosuggestions puts its greyed suggestion in POSTDISPLAY and colours it
+# with a region_highlight entry reaching past the end of BUFFER. When we then
+# replace POSTDISPLAY with the preview, that entry stays behind and is applied
+# to our rows instead: the first characters of the selected row come out in the
+# suggestion's grey. The entry describes text that no longer exists, so it goes.
+#
+# Entries that stay inside BUFFER describe the command line itself and are left
+# exactly as they are, which is what keeps syntax highlighting working. An entry
+# that starts inside BUFFER and runs past its end is clamped rather than dropped,
+# so the part of it that still means something survives.
+_cdd_claim_postdisplay_highlight() {
+  local -a kept
+  local entry rest style
+  local -i start end limit=${#BUFFER}
+
+  for entry in $region_highlight; do
+    # `P`-prefixed offsets are explicitly POSTDISPLAY-relative, so they are
+    # always about the text we just replaced.
+    [[ $entry == P* ]] && continue
+
+    start=${entry%% *}
+    rest=${entry#* }
+    end=${rest%% *}
+    style=${rest#* }
+
+    (( start >= limit )) && continue
+    (( end > limit )) && end=limit
+
+    kept+=( "$start $end $style" )
+  done
+
+  region_highlight=( $kept )
+}
+
 # Remove the preview, but only if it is still ours — another plugin may own
 # POSTDISPLAY (zsh-autosuggestions does) once we are out of cdd mode.
 _cdd_clear() {
@@ -203,6 +239,7 @@ _cdd_render() {
   _cdd_unhighlight
   _CDD_POST=$'\n\n'${(pj:\n:)rows}
   POSTDISPLAY=$_CDD_POST
+  _cdd_claim_postdisplay_highlight
 
   # Mark the selection with the terminal's own inverse video rather than a
   # colour, so it fits whatever theme the user already has.

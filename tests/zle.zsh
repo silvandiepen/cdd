@@ -69,15 +69,39 @@ screen() {
   SCREEN=$(print -r -- "$REPLY" | strip)
 }
 
+# The whole screen as the terminal received it, escape sequences intact. Needed
+# when the bug *is* an escape sequence: strip() would remove the evidence.
+raw() {
+  zpty -w -n Z $'\014'
+  drain 0.45
+  RAW=$REPLY
+}
+rawhas() { [[ $RAW == *$1* ]] && ok "$2" || bad "$2" "${(V)RAW}" }
+
 # The whole screen with the selection marked, so highlighting can be asserted.
 selected() {
   zpty -w -n Z $'\014'
   drain 0.45
   SEL=$(print -r -- "$REPLY" \
     | LC_ALL=C sed -E $'s/\033\\[7m/<INV>/g; s/\033\\[27m/<\\/INV>/g; s/\033\\[[0-9;?]*[a-zA-Z]//g; s/\r//g')
-  # A terminal may re-assert standout part-way through a run; those extra
-  # toggles carry no meaning.
-  while [[ $SEL == *'</INV><INV>'* ]]; do SEL=${SEL//'</INV><INV>'/}; done
+  # A terminal re-asserts standout whenever some *other* attribute changes
+  # mid-run — a colour code between two characters of the selected row makes zsh
+  # emit standout again for the next one. Stripping the colours above leaves
+  # those repeats behind, so a correct screen can arrive as `<INV>c<INV>o<INV>m`.
+  # Turning standout on while it is already on changes nothing on screen, and
+  # neither does turning it off while it is already off: drop both.
+  local -a parts
+  local seg out=''
+  local -i on=0
+  parts=( ${(ps:\0:)${SEL//(#b)(<INV>|<\/INV>)/$'\0'$match[1]$'\0'}} )
+  for seg in $parts; do
+    case $seg in
+      '<INV>')  (( on )) || { out+=$seg; on=1 } ;;
+      '</INV>') (( on )) && { out+=$seg; on=0 } ;;
+      *)        out+=$seg ;;
+    esac
+  done
+  SEL=$out
 }
 
 typeset -gi PASS=0 FAIL=0
@@ -105,10 +129,20 @@ PS1="P> "
 # Stands in for zsh-autosuggestions and friends: owns zle-line-pre-redraw and
 # POSTDISPLAY, and must keep working once cdd is installed on top.
 typeset -gi OTHER_RAN=0
+# Stands in for zsh-autosuggestions specifically: puts a suggestion in
+# POSTDISPLAY and colours it with a region_highlight entry that reaches past
+# the end of BUFFER. Enabled per-test, because a real suggestion engine would
+# otherwise take part in every other assertion here.
+typeset -gi SUGGEST_ON=0
+typeset -g  SUGGESTION='-suggested'
 _other_pre_redraw() {
   (( OTHER_RAN++ ))
   if [[ \$BUFFER == other* ]]; then
     POSTDISPLAY=\$'\n[other-plugin]'
+  fi
+  if (( SUGGEST_ON )); then
+    POSTDISPLAY=\$SUGGESTION
+    region_highlight+=( "\${#BUFFER} \$(( \${#BUFFER} + \${#SUGGESTION} )) fg=8 memo=stand-in-suggestions" )
   fi
 }
 zle -N zle-line-pre-redraw _other_pre_redraw
@@ -302,6 +336,22 @@ send $'\003' 0.8
                               || bad 'cancelling the picker chooses nothing' "$REPLY"
 screen
 hasnt 'composables' 'the picker leaves no rows behind'
+
+print "— a plugin that highlights its own POSTDISPLAY"
+# zsh-autosuggestions colours its suggestion with a region_highlight entry
+# pointing past the end of BUFFER. Once the preview replaces that suggestion the
+# entry describes text that is gone, and it lands on our rows instead: the
+# selected row came out half in the suggestion's grey.
+line "cd ${(q)ROOT}"
+line 'SUGGEST_ON=1'
+send 'cdd comp'; raw
+# One unbroken standout run over the whole row. When the stale entry survives,
+# its colour cuts the run in two and the row comes out half grey.
+rawhas $'\033[7m▸ components' "the selection is not recoloured by the suggestion's highlight"
+screen
+hasnt '-suggested' 'the preview replaced the suggestion rather than joining it'
+send $'\003' 0.3
+line 'SUGGEST_ON=0'
 
 print "— a multi-line prompt"
 line $'PS1=$\'\\n%~\\n> \''

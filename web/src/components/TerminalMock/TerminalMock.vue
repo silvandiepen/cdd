@@ -63,8 +63,13 @@ const describedAs = computed(
 
 <style lang="scss">
 .terminal-mock {
-  --terminal-surface: var(--color-dark);
-  --terminal-chrome: color-mix(in srgb, var(--color-dark), var(--color-light) 6%);
+  // The terminal is dark in both themes, which in dark mode makes it exactly
+  // the page background: the window dissolves and only its chrome bar floats.
+  // Lifting the surface towards the *foreground* keeps light mode unchanged
+  // (foreground is already the dark) and separates the window from the page in
+  // dark mode, without a per-component colour-scheme override.
+  --terminal-surface: color-mix(in srgb, var(--color-dark), var(--color-foreground) 7%);
+  --terminal-chrome: color-mix(in srgb, var(--terminal-surface), var(--color-light) 6%);
   --terminal-text: color-mix(in srgb, var(--color-light), transparent 8%);
   --terminal-muted: color-mix(in srgb, var(--color-light), transparent 55%);
 
