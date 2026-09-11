@@ -24,11 +24,11 @@ export const LINKS = {
 export const SUPPORT_EMAIL = "me@sil.mt";
 
 /**
- * `cdd` has no tagged release yet, so the Homebrew tap does not exist. The site
- * says so rather than printing a command that fails. Flip this when the first
- * release ships and the install section changes with it.
+ * True since v0.1.0: the release is tagged and `silvandiepen/homebrew-tap`
+ * carries the formula, so the command below actually works. The hero CTA and
+ * the install section both read from this.
  */
-export const HOMEBREW_AVAILABLE = false;
+export const HOMEBREW_AVAILABLE = true;
 
 export const HOMEBREW_COMMAND = "brew install silvandiepen/tap/cdd";
 

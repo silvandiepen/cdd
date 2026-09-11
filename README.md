@@ -122,27 +122,24 @@ macOS with Zsh is the first supported environment. Linux support should follow w
 
 `cdd` needs Zsh 5.8 or newer, which is what macOS ships.
 
-Build it from source:
+```sh
+brew install silvandiepen/tap/cdd
+```
+
+Or build it from source:
 
 ```sh
 cargo build --release
 ```
 
-Then enable the shell integration:
+Either way, enable the shell integration:
 
 ```sh
-eval "$(/path/to/cdd init zsh)"
+eval "$(cdd init zsh)"
 ```
 
-Add that line to `~/.zshrc` to enable `cdd` in future sessions.
-
-The intended installation is Homebrew:
-
-```sh
-brew install silvandiepen/tap/cdd
-```
-
-The Homebrew formula and release process will be added when the first release is tagged.
+Add that line to `~/.zshrc` to enable `cdd` in future sessions. A source build is not on your
+`PATH`, so use the full path to the binary there instead.
 
 ### Environment
 
